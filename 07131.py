@@ -13,8 +13,8 @@ st.header("Who's the Ultimate Villain? 😈")
 st.write("Cast your vote below to reveal where the group stands!")
 
 # --- Connect to JSONBin Database ---
-BIN_ID = st.secrets["6a548fbef5f4af5e2986c25f"]
-API_KEY = st.secrets["$2a$10$NYA2vy/i6/M9ChBSF9cIJelegzUG18SYvzLDMIBPjq5NXDu.Yix62"]
+BIN_ID = st.secrets["BIN_ID"]
+API_KEY = st.secrets["API_KEY"]
 URL = f"https://api.jsonbin.io/v3/b/{BIN_ID}/latest"
 HEADERS = {
     "X-Master-Key": API_KEY,
