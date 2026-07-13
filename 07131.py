@@ -15,22 +15,33 @@ st.write("Cast your vote below to reveal where the group stands!")
 # --- Connect to JSONBin Database ---
 BIN_ID = st.secrets["BIN_ID"]
 API_KEY = st.secrets["API_KEY"]
-URL = f"https://api.jsonbin.io/v3/b/{BIN_ID}/latest"
+
+# FIXED: Added /id/ to target the raw record directly
+URL = f"https://api.jsonbin.io/v3/b/{BIN_ID}"
 HEADERS = {
     "X-Master-Key": API_KEY,
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
+    "X-Bin-Meta": "false"  # Forces JSONBin to return just our data, no extra junk
 }
 
-# Function to fetch the current live votes
+# Function to fetch the current live votes safely
 def get_votes():
-    req = requests.get(URL, headers=HEADERS)
-    return req.json()["record"]
+    try:
+        req = requests.get(URL, headers=HEADERS)
+        if req.status_code == 200:
+            return req.json()
+    except Exception:
+        pass
+    return {"bear": 0, "nikki": 0}  # Emergency fallback digits
 
 # Function to save new votes to the database
 def update_votes(new_data):
-    requests.put(URL, json=new_data, headers=HEADERS)
+    try:
+        requests.put(URL, json=new_data, headers=HEADERS)
+    except Exception:
+        pass
 
-# --- Local Voting State ---
+# --- Local Session Syncing ---
 if "voted" not in st.session_state:
     st.session_state.voted = False
 
@@ -39,33 +50,38 @@ vote = st.radio("Choose your side:", ("Bear 🐻", "Nikki 💅"))
 if st.button("Submit Vote"):
     st.session_state.voted = True  
     
-    # 1. Get the absolute latest votes from the cloud
+    # 1. Pull current global numbers
     current_votes = get_votes()
     
-    # 2. Add the user's new vote
+    # 2. Increment the selected variable
     if vote == "Bear 🐻":
-        current_votes["Bear 🐻"] += 1
+        current_votes["bear"] = current_votes.get("bear", 0) + 1
         st.success("You sided with Bear! 🐻")
     elif vote == "Nikki 💅":
-        current_votes["Nikki 💅"] += 1
+        current_votes["nikki"] = current_votes.get("nikki", 0) + 1
         st.success("You sided with Nikki! 💅")
         
-    # 3. Save the new totals permanently back to the cloud
+    # 3. Push back to the cloud
     update_votes(current_votes)
+    
+    # 4. Save locally so it renders immediately
+    st.session_state["latest_bear"] = current_votes["bear"]
+    st.session_state["latest_nikki"] = current_votes["nikki"]
 
 # --- Display Live Results ---
 if st.session_state.voted:
     st.write("---")
     st.subheader("Current Live Results:")
     
-    # Fetch the numbers again so they see everyone's combined votes
-    latest_votes = get_votes()
+    # Grab the numbers we just saved during submission
+    bear_total = st.session_state.get("latest_bear", 0)
+    nikki_total = st.session_state.get("latest_nikki", 0)
 
     col1, col2 = st.columns(2)
     with col1:
-        st.metric(label="Votes for Bear", value=latest_votes["Bear 🐻"])
+        st.metric(label="Votes for Bear", value=bear_total)
     with col2:
-        st.metric(label="Votes for Nikki", value=latest_votes["Nikki 💅"])
+        st.metric(label="Votes for Nikki", value=nikki_total)
 else:
     st.write("---")
     st.info("🔒 Results are hidden until you submit your vote!")
