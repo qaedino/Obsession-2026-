@@ -45,7 +45,7 @@ def update_votes(new_data):
 if "voted" not in st.session_state:
     st.session_state.voted = False
 
-vote = st.radio("Choose your side:", ("Bear 🐻", "Nikki 💅"))
+vote = st.radio("Choose your side:", ("Bear 🐻", "Freaky Nikki 💅"))
 
 if st.button("Submit Vote"):
     st.session_state.voted = True  
@@ -57,7 +57,7 @@ if st.button("Submit Vote"):
     if vote == "Bear 🐻":
         current_votes["bear"] = current_votes.get("bear", 0) + 1
         st.success("You sided with Bear! 🐻")
-    elif vote == "Nikki 💅":
+    elif vote == "Freaky Nikki 💅":
         current_votes["nikki"] = current_votes.get("nikki", 0) + 1
         st.success("You sided with Nikki! 💅")
         
