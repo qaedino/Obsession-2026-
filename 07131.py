@@ -44,10 +44,10 @@ if st.button("Submit Vote"):
     
     # 2. Add the user's new vote
     if vote == "Bear 🐻":
-        current_votes["bear"] += 1
+        current_votes["Bear 🐻"] += 1
         st.success("You sided with Bear! 🐻")
     elif vote == "Nikki 💅":
-        current_votes["nikki"] += 1
+        current_votes["Nikki 💅"] += 1
         st.success("You sided with Nikki! 💅")
         
     # 3. Save the new totals permanently back to the cloud
@@ -63,9 +63,9 @@ if st.session_state.voted:
 
     col1, col2 = st.columns(2)
     with col1:
-        st.metric(label="Votes for Bear", value=latest_votes["bear"])
+        st.metric(label="Votes for Bear", value=latest_votes["Bear 🐻"])
     with col2:
-        st.metric(label="Votes for Nikki", value=latest_votes["nikki"])
+        st.metric(label="Votes for Nikki", value=latest_votes["Nikki 💅"])
 else:
     st.write("---")
     st.info("🔒 Results are hidden until you submit your vote!")
